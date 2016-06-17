@@ -1,0 +1,135 @@
+<!doctype html>
+<head>
+<script src="three.min.js"></script>
+<script src="libs/OrbitControls.js"></script>
+<script src="libs/tween.min.js"></script>
+<script src="libs/DAT.GUI.min.js"></script>
+<script src="libs/TrackballControls.js"></script>
+<script src="libs/Raycaster.js"></script>
+<script type="text/javascript" src="libs/FlyControls.js"></script>
+
+
+</head>
+<body>
+<script>
+    // Our 3D code will go here...
+	var scene, camera, renderer, cube, cameraControl, flyControls, clock ;
+	var isTweening = false;
+ 
+  	function init(){
+  		scene = new THREE.Scene();
+    
+   		renderer = new THREE.WebGLRenderer();
+   		renderer.setClearColor(0x000000, 1.0);
+    	renderer.setSize(window.innerWidth, window.innerHeight);
+    	renderer.shadowMapEnabled = true;
+    	    
+    	camera = new THREE.PerspectiveCamera(45, window.innerWidth/ window.innerHeight, 0.1, 20000);
+    	camera.position.set(0,20,20);
+    	camera.lookAt (scene.position);
+    	scene.add(camera);
+		clock = new THREE.Clock();
+		
+    	document.body.appendChild(renderer.domElement);
+
+		initGeom();
+		// setup the control for flying
+		setFlyControl();
+	 	render();
+ 	 
+ 	 
+  }
+  function animate() {
+	requestAnimationFrame( animate );
+	render();
+}
+
+  
+  function render () {
+  	var delta = clock.getDelta();
+  	renderer.render (scene, camera);
+  	flyControls.update(delta);
+  	requestAnimationFrame(render);
+  }
+  
+	function setFlyControl () {
+		flyControls = new THREE.FlyControls(camera);
+
+        flyControls.movementSpeed = 3;
+        flyControls.domElement = document.querySelector("#WebGL-output");
+        flyControls.rollSpeed = Math.PI / 24;
+        flyControls.autoForward = false;
+        flyControls.dragToLook = false;
+	}
+  
+  function initGeom() {
+  		//add light to scene
+  		var light = new THREE.SpotLight( 0xFFFFFF );
+    	light.position.set( 10, 20, 20 );
+    	light.castShadow = true;
+    	scene.add( light );
+    	var light2 = new THREE.AmbientLight( 0x222222 );
+		scene.add( light2 );
+  		// add a cube
+  	  	var cubeGeometry = new THREE.CubeGeometry (4,4,4);
+ 	 	var cubeMaterial = new THREE.MeshLambertMaterial({
+ 	 		color: "red"
+ 	 	});
+ 	 	cube = new THREE.Mesh (cubeGeometry, cubeMaterial);
+ 	 	cube.castShadow = true;
+ 	 	cube.name = "cube";
+    	scene.add(cube);
+		// add a second cube
+  	  	var cubeGeometry2 = new THREE.CubeGeometry (4,4,4);
+ 	 	var cubeMaterial2 = new THREE.MeshLambertMaterial({
+ 	 		color: "white"
+ 	 	});
+ 	 	var cube2 = new THREE.Mesh (cubeGeometry2, cubeMaterial2);
+ 	 	cube2.castShadow = true;
+ 	 	cube2.name = "cube2";
+    	cube2.position.x = 10;
+    	cube2.position.y = 10;
+    	scene.add(cube2);
+		
+ 	 	// add a plane
+ 	 	var planeGeometry = new THREE.PlaneGeometry (120, 120, 20, 20);
+ 	 	var planeMaterial = new THREE.MeshLambertMaterial({
+ 	 		color: 0xcccfff
+ 	 	});
+ 	 	var plane = new THREE.Mesh (planeGeometry, planeMaterial);
+ 	 	cube.receiveShadow = true;
+ 	 	plane.rotation.x = -0.5 * Math.PI;
+ 	 	plane.position.y = -2;
+ 	 	scene.add(plane);
+ 	 	
+ 	 	  		// add a sphere
+  		var sphereGeom = new THREE.SphereGeometry (5, 30, 30);
+  		var sphereMat = new THREE.MeshLambertMaterial({
+ 	 		color: "blue"
+ 	 	});
+  		
+		// add geom and material with texture
+  		var earthMesh = new THREE.Mesh (sphereGeom, sphereMat);
+  		earthMesh.name = "earth";
+  		earthMesh.position.x = -20;
+  		scene.add (earthMesh);
+ 	 	 	
+  }
+
+  
+
+    
+   
+
+	function onWindowResize() {
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+		renderer.setSize( window.innerWidth, window.innerHeight );
+	}
+  window.onload = init;
+  animate();
+
+    
+</script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<html>
+  <head>
+
+  </head>
+  <body>    
+
+    <div id="container"></div>
+
+    <script src="libs/leap2.min.js"></script>
+    <script src="libs/three2.min.js"></script>
+
+    <script src="libs/LeapSpringControls.js"></script>
+    
+    <script>
+
+      var  camera , scener, renderer , stats;
+
+      var controller , controls;
+
+      init();
+      animate();
+
+      function init(){
+
+        controller = new Leap.Controller();
+     
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(
+          50 ,
+          window.innerWidth / window.innerHeight,
+          1 ,
+          5000
+        );
+    	 // lights
+		light = new THREE.PointLight( 0xffffff, 1, 10000 );     light.castShadow = true;
+
+		light.position.set( 0, 400, 0 );
+		scene.add( light );
+		light2 = new THREE.PointLight( 0xffffff, 1, 10000 );
+		light2.castShadow = true;
+
+		light2.position.set( 500, 300, 1000 );
+		scene.add( light2 );
+		light3 = new THREE.AmbientLight( 0x000000, 1, 10000);
+		light3.castShadow = true;
+
+		scene.add( light3 );
+        camera.position.z = 100;
+		
+        //controls
+
+        controls = new THREE.LeapSpringControls( camera , controller , scene );
+
+        controls.dampening      = .75;
+        controls.size           = 120;
+        controls.springConstant =   1;
+        controls.mass           = 100;
+        controls.anchorSpeed    =  .1;
+        controls.staticLength   = 100;
+
+        var geo = new THREE.IcosahedronGeometry( 5, 0 ); 
+        var mat = new THREE.MeshLambertMaterial( { color:"red", shading: THREE.FlatShading } );
+
+        var targetMesh  = new THREE.Mesh( geo , mat );
+        var anchorMesh  = new THREE.Mesh( geo , mat );
+        var handMesh    = new THREE.Mesh( geo , mat );
+
+        
+        controls.addTargetMarker( targetMesh );
+        controls.addAnchorMarker( anchorMesh );
+        controls.addHandMarker(handMesh );
+
+		//add sutuff to the scene
+        
+       // var material = new THREE.MeshNormalMaterial();
+        var geometry = new THREE.BoxGeometry( 20 , 20 , 20 );
+        
+        for( var i = 0; i < 200; i ++ ){
+
+          	var r = Math.abs ( Math.random() ) * 255;
+          	var g = Math.abs( Math.random() ) * 255;
+          	var b = Math.abs( Math.random()) * 255;
+          	var color = new THREE.Color( r , g , b );
+          	var material = new THREE.MeshPhongMaterial( { color:color, shading: THREE.FlatShading } );
+          	var mesh = new THREE.Mesh( geometry , material );
+
+          	mesh.position.x = ( Math.random() - .5 ) * 3000;
+          	mesh.position.y = ( Math.random() ) * 200;
+          	mesh.position.z = ( Math.random() - .5) * 3000;
+
+        	mesh.rotation.x = Math.random() * Math.PI;
+    	    mesh.rotation.y = Math.random() * Math.PI;
+ 	        mesh.rotation.z = Math.random() * Math.PI;
+			mesh.updateMatrix();
+
+   	 		mesh.receiveShadow = true;
+
+         	scene.add( mesh );
+
+        }
+        var planeGeometry = new THREE.PlaneGeometry (3000, 3000, 20, 20);
+ 	 	var planeMaterial = new THREE.MeshLambertMaterial({
+ 	 		color: 'red'
+ 	 	});
+ 	 	var plane = new THREE.Mesh (planeGeometry, planeMaterial);
+ 	 	plane.receiveShadow = true;
+ 	 	plane.rotation.x = -0.5 * Math.PI;
+ 	 	plane.position.y = -4;
+ 	 	scene.add(plane);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+    	document.body.appendChild(renderer.domElement);
+
+        controller.connect();
+	
+
+      }
+
+
+      function animate(){
+
+
+        // Don't forget to update your controls!
+        controls.update();
+        renderer.render( scene , camera );
+
+        requestAnimationFrame( animate );
+
+      }
+
+
+    </script>
+
+  </body>
+</html>

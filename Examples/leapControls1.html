@@ -1,0 +1,115 @@
+<!doctype html>
+<head>
+<script src="libs/three.js"></script>
+<script src="libs/leap-0.6.4.js"></script>
+
+<script src="libs/LeapCameraControls.js"></script>
+<script src="libs/LeapObjectControls.js"></script>
+<script src="libs/LeapSetUp.js"></script>
+
+
+</head>
+<body>
+<script>
+    // Our 3D code will go here...
+	var scene, cube,camera, renderer, leapControls, cameraControls, cubeControls;
+    var leapSetUp;
+ 
+  	function init(){
+  		scene = new THREE.Scene();
+    
+   		renderer = new THREE.WebGLRenderer();
+   		renderer.setClearColor(0x000000, 1.0);
+    	renderer.setSize(window.innerWidth, window.innerHeight);
+    	renderer.shadowMapEnabled = true;
+    	    
+    	camera = new THREE.PerspectiveCamera(45, window.innerWidth/ window.innerHeight, 0.1, 20000);
+    	camera.position.set(15,16,13);
+    	camera.lookAt (scene.position);
+    	leapSetUp = new LeapSetUp();
+    	cameraControls = leapSetUp.getCameraControls(camera);
+    	scene.add(camera);
+    	  
+    	document.body.appendChild(renderer.domElement);
+    
+    window.addEventListener('resize', function() {
+     	var WIDTH = window.innerWidth,
+        HEIGHT = window.innerHeight;
+      	renderer.setSize(WIDTH, HEIGHT);
+      	camera.aspect = WIDTH / HEIGHT;
+      	camera.updateProjectionMatrix();
+ 
+ 	 });   
+ 	 
+	initGeom();
+ 
+	cubeControls = leapSetUp.getObjectControls(camera, cube);
+
+	
+ 	render();
+ 	 
+ 	 
+  }
+  function render () {
+  	renderer.render (scene, camera);
+  	requestAnimationFrame(render);
+  }
+  
+
+  
+  function initGeom() {
+	// lights
+		light = new THREE.DirectionalLight( 0xffffff );
+		light.position.set( 1, 1, 1 );
+		scene.add( light );
+		light = new THREE.DirectionalLight( 0x002288 );
+		light.position.set( -1, -1, -1 );
+		scene.add( light );
+		light = new THREE.AmbientLight( 0x222222 );
+		scene.add( light );
+  		// add a cube
+  		var cubeGeometry = new THREE.CubeGeometry (6,4,6);
+ 	 	var cubeMaterial = new THREE.MeshLambertMaterial({
+ 	 		color: "red"
+ 	 	});
+ 	 	cube = new THREE.Mesh (cubeGeometry, cubeMaterial);
+ 	 	cube.castShadow = true;
+ 	 	scene.add(cube);
+ 	 	// add some cylinder
+		var geometryCy = new THREE.CylinderGeometry( 0, 10, 30, 4, 1 );
+		var materialCy =  new THREE.MeshPhongMaterial( { color:0x0000ff, shading: THREE.FlatShading } );
+		for ( var i = 0; i < 130; i ++ ) {
+			var mesh = new THREE.Mesh( geometryCy, materialCy );
+			mesh.position.x = ( Math.random() - 0.5 ) * 300;
+			mesh.position.y = ( Math.random() - 0.5 ) * 300;
+			mesh.position.z = ( Math.random() - 0.5 ) * 300;
+			mesh.updateMatrix();
+			mesh.matrixAutoUpdate = false;
+			scene.add( mesh );
+		}
+ 	 	// add a plane
+ 	 	var planeGeometry = new THREE.PlaneGeometry (20, 20);
+ 	 	var planeMaterial = new THREE.MeshLambertMaterial({
+ 	 		color: 0xcccccc
+ 	 	});
+ 	 	var plane = new THREE.Mesh (planeGeometry, planeMaterial);
+ 	 	cube.receiveShadow = true;
+ 	 	plane.rotation.x = -0.5 * Math.PI;
+ 	 	plane.position.y = -2;
+ 	 	scene.add(plane);
+ 	 	 	 	
+ 	 	
+  }
+
+  window.onload = init;
+  Leap.loop(function(frame){
+
+		cameraControls.update(frame); 
+  		cubeControls.update(frame); // rotating, scaling & panning
+  		render();
+	});
+  
+    
+</script>
+</body>
+</html>

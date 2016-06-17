@@ -1,0 +1,89 @@
+<html>
+  <head>
+
+  </head>
+  <body>    
+
+    <div id="container"></div>
+
+    <script src="libs/leap.min.js"></script>
+    <script src="three.min.js"></script>
+
+    <script src="libs/LeapTrackballControls.js"></script>
+    
+    <script>
+
+      var  camera , scener, renderer , stats;
+
+      var controller , controls;
+
+      init();
+      animate();
+
+      function init(){
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(
+          50 ,
+          window.innerWidth / window.innerHeight,
+          1 ,
+          5000
+        );
+
+        // lights
+		light = new THREE.DirectionalLight( 0xffffff );
+		light.position.set( 1, 1, 1 );
+		scene.add( light );
+		light = new THREE.DirectionalLight( 0x002288 );
+		light.position.set( -1, -1, -1 );
+		scene.add( light );
+		light = new THREE.AmbientLight( 0x222222 );
+		scene.add( light );
+        camera.position.z = 100;
+        console.log( camera );
+		
+        // set up controls
+        controller = new Leap.Controller();
+        controller.connect();
+
+        controls = new THREE.LeapTrackballControls( camera , controller );
+        controls.rotationSpeed = 20;
+		// add some cylinder
+        var geometryCy = new THREE.CylinderGeometry( 0, 10, 30, 4, 1 );
+		var materialCy =  new THREE.MeshPhongMaterial( { color:0xff0000, shading: THREE.FlatShading } );
+
+		for ( var i = 0; i < 100; i ++ ) {
+			var mesh = new THREE.Mesh( geometryCy, materialCy );
+			mesh.position.x = ( Math.random() - 0.5 ) * 500;
+			mesh.position.y = ( Math.random() - 0.5 ) * 500;
+			mesh.position.z = ( Math.random() - 0.5 ) *500;
+			mesh.updateMatrix();
+			mesh.matrixAutoUpdate = false;
+			scene.add( mesh );
+		}
+        
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );      
+
+
+
+      }
+
+
+      function animate(){
+
+
+        // Don't forget to update your controls!
+        controls.update();
+        renderer.render( scene , camera );
+
+        requestAnimationFrame( animate );
+
+      }
+
+
+    </script>
+
+  </body>
+</html>
